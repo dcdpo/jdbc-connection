@@ -8,6 +8,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 class TestProjectApplicationTests {
 
     @Autowired
+    RecordService recordService;
+    @Autowired
     UserDao userDao;
 
     @Test
@@ -17,5 +19,10 @@ class TestProjectApplicationTests {
     @Test
     void testInsertRecord() {
         userDao.insertNewData();
+    }
+
+    @Test
+    void testInsertRecordByJdbcTemplate() {
+        recordService.insertService();
     }
 }
