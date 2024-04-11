@@ -1,38 +1,19 @@
 package com.example.testproject;
 
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.time.Instant;
-import java.util.Calendar;
-import java.util.Date;
+import java.util.HashMap;
 
 @Component
 public class UserDao {
 
-    @Value("${spring.datasource.driver.class-name}")
-    private String driverName;
-    @Value("${spring.datasource.url}")
-    private String url;
-    @Value("${spring.datasource.username}")
-    private String username;
-    @Value("${spring.datasource.password}")
-    private String password;
+    @Autowired(required = false)
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
     public void insertNewData() {
-
-        Connection conn = null;
-        try {
-            Class.forName(driverName);
-            conn = DriverManager.getConnection(url, username, password);
-        } catch (SQLException | ClassNotFoundException throwables) {
-            throwables.printStackTrace();
-        }
 
         String sql = "INSERT INTO PFS_STAT_BAN_CARRIER_RECORD " +
                 "(INVOICE_NUMBER, " +
@@ -50,47 +31,28 @@ public class UserDao {
                 "LAST_MODIFIED_BY, " +
                 "LAST_MODIFIED_DATE, " +
                 "LAST_MODIFIED_IP, " +
-                "LAST_MODIFIED_FUNC) values (?, ?, ?, ?, ?, ?, ?, TO_DATE(?, 'yyyyMMddHH24MIss'), ?, TO_DATE(?, 'yyyyMMddHH24MIss'), ?, ? , ?, TO_DATE(?, 'yyyyMMddHH24MIss'), ?, ?)";
-        PreparedStatement stat = null;
-        try {
-            stat = conn.prepareStatement(sql);
+                "LAST_MODIFIED_FUNC) values (:InvoiceNumber, :InvoiceDate, :InvNum, :SellerId, :CarrierType, :CarrierId2, :Total_Amount, TO_DATE(:ProcessTime, 'yyyyMMddHH24MIss'), :CreatdeBy, TO_DATE(:CreatedDate, 'yyyyMMddHH24MIss'), :CreatedIP, :CreatedFunc, :LastModifiedBy, TO_DATE(:LastModifiedDate, 'yyyyMMddHH24MIss'), :LasModifiedIP, :LastModifiedFunc)";
 
+        HashMap<String, Object> map = new HashMap<>();
 
-            Date sysDt = Date.from(Instant.parse("2024-03-06T06:30:00Z"));
+        map.put("InvoiceNumber", "NN111100014");
+        map.put("InvoiceDate", "20240218");
+        map.put("InvNum", "11302");
+        map.put("SellerId", "12345678");
+        map.put("CarrierType", "1K0001");
+        map.put("CarrierId2", "/0123456789012345");
+        map.put("Total_Amount", BigDecimal.valueOf(100));
+        map.put("ProcessTime", "20240226143000");
+        map.put("CreatdeBy", "SYS");
+        map.put("CreatedDate", "20240226143000");
+        map.put("CreatedIP", "");
+        map.put("CreatedFunc", "SYS");
+        map.put("LastModifiedBy", "");
+        map.put("LastModifiedDate", "20240226143000");
+        map.put("LasModifiedIP", "");
+        map.put("LastModifiedFunc", "");
 
-            // 計算開始時間
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTime(sysDt);
-            calendar.add(Calendar.HOUR_OF_DAY, -2);
-            Date twoHoursAgo = calendar.getTime();
-
-            calendar.setTime(twoHoursAgo);
-            calendar.set(Calendar.MINUTE, 30);
-
-            calendar.set(Calendar.SECOND, 0);
-            calendar.set(Calendar.MILLISECOND, 0);
-            Date startTime = calendar.getTime();
-
-            stat.setString(1, "NN111100014");
-            stat.setString(2, "20240218");
-            stat.setString(3, "11302");
-            stat.setString(4, "12345678");
-            stat.setString(5, "1K0001");
-            stat.setString(6, "/0123456789012345");
-            stat.setBigDecimal(7, BigDecimal.valueOf(100));
-            stat.setString(8, "20240226143000");
-            stat.setString(9, "SYS");
-            stat.setString(10, "20240226143000");
-            stat.setString(11, "");
-            stat.setString(12, "SYS");
-            stat.setString(13, "");
-            stat.setString(14, "20240226143000");
-            stat.setString(15, "");
-            stat.setString(16, "");
-
-            stat.executeUpdate();
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        namedParameterJdbcTemplate.update(sql, map);
     }
+
 }
