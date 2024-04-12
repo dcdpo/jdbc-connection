@@ -2,23 +2,22 @@ package com.example.testproject.domain;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.time.Instant;
 
 public class PdwPfsStatBanCarrierRecord implements Serializable {
     private String invoiceNumber;
     private String invoiceDate;
     private String sellerId;
-    private Instant processTime;
+    private String processTime;
     private String invYm;
     private String carrierType;
     private String carrierId2;
     private BigDecimal totalAmount;
     private String createdBy;
-    private Instant createdDate;
+    private String createdDate;
     private String createdIp;
     private String createdFunc;
     private String lastModifiedBy;
-    private Instant lastModifiedDate;
+    private String lastModifiedDate;
     private String lastModifiedIp;
     private String lastModifiedFunc;
 
@@ -47,11 +46,11 @@ public class PdwPfsStatBanCarrierRecord implements Serializable {
         this.sellerId = sellerId;
     }
 
-    public Instant getProcessTime() {
+    public String getProcessTime() {
         return processTime;
     }
 
-    public void setProcessTime(Instant processTime) {
+    public void setProcessTime(String processTime) {
         this.processTime = processTime;
     }
 
@@ -95,11 +94,11 @@ public class PdwPfsStatBanCarrierRecord implements Serializable {
         this.createdBy = createdBy;
     }
 
-    public Instant getCreatedDate() {
+    public String getCreatedDate() {
         return createdDate;
     }
 
-    public void setCreatedDate(Instant createdDate) {
+    public void setCreatedDate(String createdDate) {
         this.createdDate = createdDate;
     }
 
@@ -127,11 +126,11 @@ public class PdwPfsStatBanCarrierRecord implements Serializable {
         this.lastModifiedBy = lastModifiedBy;
     }
 
-    public Instant getLastModifiedDate() {
+    public String getLastModifiedDate() {
         return lastModifiedDate;
     }
 
-    public void setLastModifiedDate(Instant lastModifiedDate) {
+    public void setLastModifiedDate(String lastModifiedDate) {
         this.lastModifiedDate = lastModifiedDate;
     }
 

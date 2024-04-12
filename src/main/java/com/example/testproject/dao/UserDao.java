@@ -1,15 +1,20 @@
-package com.example.testproject;
+package com.example.testproject.dao;
 
 import com.example.testproject.domain.PdwPfsStatBanCarrierRecord;
+import com.example.testproject.preparedStatementSetter.impl.RecordPpsSetterImpl;
+import com.example.testproject.rowMapper.RecordRowMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementSetter;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 @Component
 public class UserDao {
@@ -20,6 +25,7 @@ public class UserDao {
     @Autowired(required = false)
     JdbcTemplate jdbcTemplate;
 
+    //使用namedParameterJdbcTemplate
     public void insertNewData() {
         String sql = "INSERT INTO PFS_STAT_BAN_CARRIER_RECORD " +
                 "(INVOICE_NUMBER, " +
@@ -61,6 +67,7 @@ public class UserDao {
         namedParameterJdbcTemplate.update(sql, map);
     }
 
+    //使用jdbcTemplatem用param的寫法去處理參數
     public int insertDataByJdbcTem(PdwPfsStatBanCarrierRecord pdwRecord) {
         String sql = "INSERT INTO PFS_STAT_BAN_CARRIER_RECORD " +
                 "(INVOICE_NUMBER, " +
@@ -78,13 +85,50 @@ public class UserDao {
                 "LAST_MODIFIED_BY, " +
                 "LAST_MODIFIED_DATE, " +
                 "LAST_MODIFIED_IP, " +
-                "LAST_MODIFIED_FUNC) values (?, ?, ?, ?, ?, ?, ?, TO_DATE(?, 'yyyyMMddHH24MIss'), ?, TO_DATE(?, 'yyyyMMddHH24MIss'), ?, ? , ?, TO_DATE(?, 'yyyyMMddHH24MIss'), ?, ?)";
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+                "LAST_MODIFIED_FUNC) values (:InvoiceNumber, :InvoiceDate, :InvNum, :SellerId, :CarrierType, :CarrierId2, :Total_Amount, TO_DATE(:ProcessTime, 'yyyyMMddHH24MIss'), :CreatdeBy, TO_DATE(:CreatedDate, 'yyyyMMddHH24MIss'), :CreatedIP, :CreatedFunc, :LastModifiedBy, TO_DATE(:LastModifiedDate, 'yyyyMMddHH24MIss'), :LasModifiedIP, :LastModifiedFunc)";
 
-        return jdbcTemplate.update(sql, pdwRecord.getInvoiceNumber(), pdwRecord.getInvoiceDate(), pdwRecord.getInvYm(),
-                pdwRecord.getSellerId(), pdwRecord.getCarrierType(), pdwRecord.getCarrierId2(), pdwRecord.getTotalAmount(),
-                formatter.format(Date.from(pdwRecord.getProcessTime())), pdwRecord.getCreatedBy(), formatter.format(Date.from(pdwRecord.getCreatedDate())), pdwRecord.getCreatedIp(),
-                pdwRecord.getCreatedFunc(), pdwRecord.getLastModifiedBy(), formatter.format(Date.from(pdwRecord.getLastModifiedDate())),
-                pdwRecord.getLastModifiedIp(), pdwRecord.getLastModifiedFunc());
+        try {
+            HashMap<String, Object> map = new HashMap<>();
+
+            map.put("InvoiceNumber", pdwRecord.getInvoiceNumber());
+            map.put("InvoiceDate", pdwRecord.getInvoiceDate());
+            map.put("InvNum", pdwRecord.getInvYm());
+            map.put("SellerId", pdwRecord.getSellerId());
+            map.put("CarrierType", pdwRecord.getCarrierType());
+            map.put("CarrierId2", pdwRecord.getCarrierId2());
+            map.put("Total_Amount", pdwRecord.getTotalAmount());
+            map.put("ProcessTime", pdwRecord.getProcessTime());
+            map.put("CreatdeBy", pdwRecord.getCreatedBy());
+            map.put("CreatedDate", pdwRecord.getCreatedDate());
+            map.put("CreatedIP", pdwRecord.getCreatedIp());
+            map.put("CreatedFunc", pdwRecord.getCreatedFunc());
+            map.put("LastModifiedBy", pdwRecord.getLastModifiedBy());
+            map.put("LastModifiedDate", pdwRecord.getLastModifiedDate());
+            map.put("LasModifiedIP", pdwRecord.getLastModifiedIp());
+            map.put("LastModifiedFunc", pdwRecord.getLastModifiedFunc());
+
+            RecordPpsSetterImpl pss = new RecordPpsSetterImpl();
+
+            pss.setExternalParams(map);
+
+            int successCount = jdbcTemplate.update(sql, pss);
+
+            return successCount;
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+
+        return 0;
     }
+
+
+    public List<PdwPfsStatBanCarrierRecord> findAll() {
+        String sql = "SELECT * FROM PFS_STAT_BAN_CARRIER_RECORD";
+
+        List<PdwPfsStatBanCarrierRecord> recordList = jdbcTemplate.query(sql, new RecordRowMapper());
+
+        return recordList;
+    }
+
+
 }
